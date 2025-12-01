@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Octra Quiz - Test Your Knowledge</title>
+  <meta name="description" content="Octra Quiz — quick bites of trivia to test your knowledge." />
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#7c3aed;
+      --success:#16a34a;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.04);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, #091026 0%, #071020 100%);
+      color:#e6eef6;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+    .container{
+      width:100%;
+      max-width:980px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:28px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.7);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:56px;
+      height:56px;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),#06b6d4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:20px;
+      color:white;
+      box-shadow: 0 6px 20px rgba(124,58,237,0.18);
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:0.2px;
+    }
+    p.lead{
+      margin:6px 0 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .quiz{
+      display:grid;
+      grid-template-columns: 1fr 320px;
+      gap:20px;
+      margin-top:18px;
+    }
+    .card{
+      background:var(--card);
+      padding:18px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .question{
+      font-size:18px;
+      margin-bottom:14px;
+      min-height:54px;
+    }
+    .options{display:flex;flex-direction:column;gap:10px}
+    .option{
+      background:var(--glass);
+      padding:12px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      user-select:none;
+      border:1px solid rgba(255,255,255,0.02);
+      transition: transform .08s ease, background .12s ease;
+    }
+    .option:hover{ transform: translateY(-3px) }
+    .option[data-state="selected"]{ outline:2px solid rgba(124,58,237,0.18); background: rgba(124,58,237,0.06) }
+    .controls{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:16px;
+      gap:10px;
+    }
+    button{
+      background:linear-gradient(90deg,var(--accent),#06b6d4);
+      border:0;
+      color:white;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.04);
+      color:var(--muted);
+      padding:8px 12px;
+      font-weight:600;
+    }
+    aside.stats{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .stat{
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      padding:12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.02);
+      font-size:14px;
+    }
+    .progress{
+      height:10px;
+      background:rgba(255,255,255,0.03);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .progress > i{ display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--accent),#06b6d4) }
+    .result{
+      text-align:center;
+      padding:20px;
+    }
+    .small{font-size:13px;color:var(--muted)}
+    footer{ margin-top:16px; text-align:center; color:var(--muted); font-size:13px }
+    @media (max-width:880px){
+      .quiz{ grid-template-columns: 1fr; }
+      aside.stats{ order:2 }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="app-title">
+    <header>
+      <div class="logo" aria-hidden="true">OQ</div>
+      <div>
+        <h1 id="app-title">Octra Quiz — Test Your Knowledge</h1>
+        <p class="lead">A small, fast quiz to sharpen your mind. Tap an answer and hit Next.</p>
+      </div>
+    </header>
+
+    <section class="quiz" aria-live="polite">
+      <section class="card app-card" id="quiz-card">
+        <div id="question-wrap">
+          <div class="question" id="question">Loading…</div>
+          <div class="options" id="options" role="list"></div>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <button class="secondary" id="prevBtn" type="button">← Prev</button>
+          <div style="flex:1"></div>
+          <button id="nextBtn" type="button">Next →</button>
+        </div>
+      </section>
+
+      <aside class="stats">
+        <div class="stat">
+          <div style="display:flex;justify-content:space-between">
+            <div class="small">Progress</div>
+            <div id="progressText" class="small">0 / 0</div>
+          </div>
+          <div class="progress" aria-hidden="true" style="margin-top:8px">
+            <i id="progressBar"></i>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="small">Score</div>
+              <div id="score" style="font-weight:700;font-size:18px">0</div>
+            </div>
+            <div class="small" id="timer">⏱ 00:00</div>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button id="restart" class="secondary" type="button">Restart Quiz</button>
+            <button id="randomize" class="secondary" type="button">Randomize Questions</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div id="resultModal" class="card" style="margin-top:18px; display:none">
+      <div class="result">
+        <h2 id="resultTitle">Your results</h2>
+        <p id="resultSummary" class="small">Nice try — keep going!</p>
+        <div style="margin-top:12px">
+          <button id="playAgain">Play again</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Built with ❤️ — Octra Quiz • <span id="version">v1.0</span>
+    </footer>
+  </main>
+
+  <script>
+    // Small, self-contained quiz engine
+    (function(){
+      const sampleQuestions = [
+        { id:1, q:"Which planet is known as the Red Planet?", a:["Earth","Mars","Venus","Jupiter"], correct:1 },
+        { id:2, q:"What is the capital of Japan?", a:["Seoul","Beijing","Tokyo","Bangkok"], correct:2 },
+        { id:3, q:"Who wrote '1984'?", a:["Aldous Huxley","George Orwell","Ray Bradbury","Philip K. Dick"], correct:1 },
+        { id:4, q:"What is the chemical symbol for water?", a:["WO","H2O","HO2","O2H"], correct:1 },
+        { id:5, q:"Which language runs in web browsers?", a:["Python","C++","JavaScript","Rust"], correct:2 }
+      ];
+
+      // State
+      let questions = JSON.parse(JSON.stringify(sampleQuestions));
+      let index = 0;
+      let score = 0;
+      let selected = null;
+      let startTime = Date.now();
+
+      // Elements
+      const questionEl = document.getElementById('question');
+      const optionsEl = document.getElementById('options');
+      const nextBtn = document.getElementById('nextBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const scoreEl = document.getElementById('score');
+      const timerEl = document.getElementById('timer');
+      const resultModal = document.getElementById('resultModal');
+      const resultTitle = document.getElementById('resultTitle');
+      const resultSummary = document.getElementById('resultSummary');
+      const restartBtn = document.getElementById('restart');
+      const randomizeBtn = document.getElementById('randomize');
+      const playAgainBtn = document.getElementById('playAgain');
+
+      function render(){
+        const q = questions[index];
+        questionEl.textContent = q.q;
+        optionsEl.innerHTML = '';
+        q.a.forEach((opt, i)=>{
+          const div = document.createElement('div');
+          div.className = 'option';
+          div.setAttribute('role','button');
+          div.setAttribute('tabindex','0');
+          div.dataset.index = i;
+          div.textContent = opt;
+          if (q._chosen === i) div.dataset.state = "selected";
+          div.addEventListener('click', ()=> choose(i));
+          div.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') choose(i) });
+          optionsEl.appendChild(div);
+        });
+
+        progressText.textContent = (index+1) + ' / ' + questions.length;
+        const pct = Math.round(((index+1) / questions.length) * 100);
+        progressBar.style.width = pct + '%';
+        scoreEl.textContent = score;
+        prevBtn.disabled = index === 0;
+        nextBtn.textContent = index === questions.length - 1 ? 'Finish' : 'Next →';
+
+        // hide result if coming back
+        resultModal.style.display = 'none';
+      }
+
+      function choose(i){
+        const q = questions[index];
+        q._chosen = i;
+        const optionNodes = optionsEl.querySelectorAll('.option');
+        optionNodes.forEach(n => n.dataset.state = ''); // reset
+        optionNodes[i].dataset.state = 'selected';
+        selected = i;
+      }
+
+      function next(){
+        const q = questions[index];
+        // evaluate if selecting triggers immediate scoring, or wait until finish; we'll score incrementally
+        if (typeof q._scored === 'undefined'){
+          if (typeof q._chosen !== 'undefined'){
+            if (q._chosen === q.correct) {
+              score += 1;
+            }
+            q._scored = true;
+          }
+        }
+
+        if (index < questions.length - 1){
+          index++;
+          render();
+        } else {
+          finish();
+        }
+      }
+
+      function prev(){
+        if (index > 0) {
+          index--;
+          render();
+        }
+      }
+
+      function finish(){
+        const total = questions.length;
+        const pct = Math.round((score/total)*100);
+        resultTitle.textContent = `Score: ${score} / ${total} (${pct}%)`;
+        if (pct >= 80) {
+          resultSummary.textContent = "Excellent — you're on fire!";
+        } else if (pct >= 50) {
+          resultSummary.textContent = "Nice work — keep practicing.";
+        } else {
+          resultSummary.textContent = "Not bad — try again to improve!";
+        }
+        resultModal.style.display = 'block';
+        // stop timer
+        clearInterval(timerTick);
+      }
+
+      function restart(){
+        questions = JSON.parse(JSON.stringify(sampleQuestions));
+        index = 0;
+        score = 0;
+        selected = null;
+        startTime = Date.now();
+        timerEl.textContent = "⏱ 00:00";
+        timerTick = setInterval(updateTimer, 1000);
+        render();
+      }
+
+      function randomize(){
+        // Fisher-Yates shuffle
+        for (let i = questions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+        // reset progress and scoring metadata
+        questions.forEach(q => { delete q._chosen; delete q._scored; });
+        index = 0; score = 0; startTime = Date.now();
+        render();
+      }
+
+      nextBtn.addEventListener('click', next);
+      prevBtn.addEventListener('click', prev);
+      restartBtn.addEventListener('click', restart);
+      randomizeBtn.addEventListener('click', randomize);
+      playAgainBtn.addEventListener('click', restart);
+
+      // Timer
+      function pad(n){ return n.toString().padStart(2,'0') }
+      function updateTimer(){
+        const diff = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        timerEl.textContent = `⏱ ${pad(m)}:${pad(s)}`;
+      }
+      let timerTick = setInterval(updateTimer, 1000);
+
+      // initial render
+      render();
+
+      // for accessibility focus first option when question changes
+      const obs = new MutationObserver(()=> {
+        const firstOption = optionsEl.querySelector('.option');
+        if (firstOption) firstOption.focus();
+      });
+      obs.observe(optionsEl, {childList:true});
+
+      // expose for debug (optional)
+      window.__quiz = { restart, randomize, state: ()=> ({index,score,questions}) };
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
