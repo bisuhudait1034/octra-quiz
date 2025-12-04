@@ -75,10 +75,20 @@
     color: #000;
   }
 
-  #prevBtn {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-    margin-right: 10px;
+  #warningFlash {
+    display: none;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #ff4f4f;
+    animation: flash 1s infinite;
+  }
+
+  @keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
   }
 
   .result, .points-display {
@@ -87,27 +97,11 @@
     font-weight: 700;
     text-align: center;
   }
-
-  /* Shake animation */
-  @keyframes shake {
-    0% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-6px); }
-    80% { transform: translateX(6px); }
-    100% { transform: translateX(0); }
-  }
-
 </style>
 </head>
 <body>
   <div class="container">
     <h1>Octra Knowledge Quiz</h1>
-
-<!-- Progress Bar -->
-<div id="progressContainer" style="width:100%;background:rgba(255,255,255,0.1);height:12px;border-radius:10px;margin:20px 0;">
-  <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ffe259,#ffa751);border-radius:10px;transition:0.4s;"></div>
-</div>
 
     <form id="quizForm">
 
@@ -116,10 +110,10 @@
       <button type="button" onclick="nextQuestion()" id="nextBtn">Next</button>
     </form>
 
-    <div class="points-display" id="points"></div>
     <div id="timerDisplay" style="font-size:20px;text-align:center;margin-top:10px;color:#ffd369;"></div>
 
-    <div class="result" id="result"></div>
+    <!-- 🔥 Flashing warning -->
+    <div id="warningFlash">⚠ Hurry up! Last 15 seconds!</div>
 
     <div class="points-display" id="points"></div>
 
@@ -128,56 +122,16 @@
 
 <script>
   const questions = [
-    {
-      q: "1. What technology does Octra primarily focus on?",
-      options: ["Fully Homomorphic Encryption (FHE)", "General AI Models", "Blockchain Mining", "IoT Devices"],
-      answer: 0
-    },
-    {
-      q: "2. What does FHE allow computations on?",
-      options: ["Encrypted Data", "Raw Unencrypted Data", "Audio Files", "Images Only"],
-      answer: 0
-    },
-    {
-      q: "3. Octra aims to build a privacy-focused blockchain by enabling?",
-      options: ["Encrypted Computation", "Advanced NFT minting", "Faster Transactions Only", "Game Development"],
-      answer: 0
-    },
-    {
-      q: "4. What database backend does Octra modify?",
-      options: ["IrminDB", "MongoDB", "SQLLite", "Firebase"],
-      answer: 0
-    },
-    {
-      q: "5. What type of apps benefit most from Octra tech?",
-      options: ["Privacy-sensitive apps", "Normal Web Games", "Photo Editors", "Video Streaming Apps"],
-      answer: 0
-    },
-    {
-      q: "6. Octra’s execution environment is meant to be?",
-      options: ["Isolated and Secure", "Open and Unrestricted", "Shared Across All Nodes", "Publicly Editable"],
-      answer: 0
-    },
-    {
-      q: "7. Octra completed a pre-seed round of?",
-      options: ["$4M", "$40M", "$400K", "$1M"],
-      answer: 0
-    },
-    {
-      q: "8. Octra’s computation sandbox uses which format?",
-      options: ["WASM", "EXE", "APK", "BIN"],
-      answer: 0
-    },
-    {
-      q: "9. Octra’s main mission is to bring?",
-      options: ["Universal Encrypted Compute", "A new DEX", "A Meme Generator", "A Trading Bot"],
-      answer: 0
-    },
-    {
-      q: "10. Octra is suitable for handling?",
-      options: ["Sensitive Data", "Memes", "Video Editing", "Simple Games"],
-      answer: 0
-    }
+    { q: "1. What technology does Octra primarily focus on?", options: ["Fully Homomorphic Encryption (FHE)", "General AI Models"], answer: 0 },
+    { q: "2. What does FHE allow computations on?", options: ["Encrypted Data", "Raw Unencrypted Data"], answer: 0 },
+    { q: "3. Octra aims to build a privacy-focused blockchain by enabling?", options: ["Encrypted Computation", "Advanced NFT minting"], answer: 0 },
+    { q: "4. What database backend does Octra modify?", options: ["IrminDB", "MongoDB"], answer: 0 },
+    { q: "5. What type of apps benefit most from Octra tech?", options: ["Privacy-sensitive apps", "Normal Web Games"], answer: 0 },
+    { q: "6. Octra’s execution environment is meant to be?", options: ["Isolated and Secure", "Open and Unrestricted"], answer: 0 },
+    { q: "7. Octra completed a pre-seed round of?", options: ["$4M", "$40M"], answer: 0 },
+    { q: "8. Octra’s computation sandbox uses which format?", options: ["WASM", "EXE"], answer: 0 },
+    { q: "9. Octra’s main mission is to bring?", options: ["Universal Encrypted Compute", "A new DEX"], answer: 0 },
+    { q: "10. Octra is suitable for handling?", options: ["Sensitive Data", "Memes"], answer: 0 }
   ];
 
   let current = 0;
@@ -186,74 +140,16 @@
 
   function loadQuestion() {
     const q = questions[current];
-
-    // Update progress bar
-    const progressPercent = ((current) / questions.length) * 100;
-    document.getElementById("progressBar").style.width = progressPercent + "%";
-
-    let html = `<p>${q.q}</p>`;() {
-    const q = questions[current];
     let html = `<p>${q.q}</p>`;
-    q.options.forEach((lbl, idx) => {
-      // Disable clicking
-      lbl.style.pointerEvents = "none";
-      lbl.style.opacity = "0.7";
-
-      if (idx === correctIndex) {
-        lbl.style.background = "rgba(0,255,0,0.3)";
-        lbl.style.border = "2px solid #00ff00";
-        lbl.style.boxShadow = "0 0 15px #00ff00"; /* Glow effect */
-      }
-      if (selected.value != correctIndex && idx == selected.value) {
-        lbl.style.animation = "shake 0.4s";
-        lbl.style.background = "rgba(255,0,0,0.3)";
-        lbl.style.border = "2px solid #ff0000";
-      }
-    });((opt, i) => {
+    q.options.forEach((opt, i) => {
       html += `<label><input type='radio' name='option' value='${i}'> ${opt}</label><br>`;
     });
     document.getElementById("questionBox").innerHTML = html;
+
+    startTimer(); // restart timer for new question
   }
 
   function nextQuestion() {
-    const selected = document.querySelector('input[name="option"]:checked');
-
-    if (!selected) return alert("Please select an option!");
-
-    const correctIndex = questions[current].answer;
-    const options = document.querySelectorAll('label');
-
-    // Highlight answers
-    options.forEach((lbl, idx) => {
-      if (idx === correctIndex) {
-        lbl.style.background = "rgba(0,255,0,0.3)"; // Green highlight
-        lbl.style.border = "2px solid #00ff00";
-      }
-      if (selected.value != correctIndex && idx == selected.value) {
-        lbl.style.background = "rgba(255,0,0,0.3)"; // Red highlight
-        lbl.style.border = "2px solid #ff0000";
-      }
-    });
-
-    // Delay before moving to next question
-    setTimeout(() => {
-      if (parseInt(selected.value) === correctIndex) {
-        score++;
-        points += 10;
-      }
-
-      current++;
-
-      if (current < questions.length) {
-        loadQuestion();
-        startTimer();
-      } else {
-        document.getElementById("quizForm").style.display = "none";
-        document.getElementById("result").innerText = `You scored ${score}/10`;
-        document.getElementById("points").innerText = `Total Points: ${points}`;
-      }
-    }, 1200); // 1.2 sec delay to show highlight
-  }() {
     const selected = document.querySelector('input[name="option"]:checked');
 
     if (!selected) return alert("Please select an option!");
@@ -271,31 +167,40 @@
       document.getElementById("quizForm").style.display = "none";
       document.getElementById("result").innerText = `You scored ${score}/10`;
       document.getElementById("points").innerText = `Total Points: ${points}`;
+      document.getElementById("warningFlash").style.display = "none";
     }
   }
 
   let timer;
-let timeLeft = 15;
+  let timeLeft = 15;
 
-function startTimer() {
-  clearInterval(timer);
-  timeLeft = 15;
-  document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
-  timer = setInterval(() => {
-    timeLeft--;
+  function startTimer() {
+    clearInterval(timer);
+    timeLeft = 15;
+
+    document.getElementById("warningFlash").style.display = "none";
     document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
 
-    if (timeLeft === 0) {
-      clearInterval(timer);
-      nextQuestion();
-    }
-  }, 1000);
-}
+    timer = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
 
-window.onload = () => {
-  loadQuestion();
-  startTimer();
-};
+      // 🔥 Flash warning at 15 seconds
+      if (timeLeft === 15) {
+        document.getElementById("warningFlash").style.display = "block";
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        nextQuestion();
+      }
+
+    }, 1000);
+  }
+
+  window.onload = () => {
+    loadQuestion();
+  };
 </script>
 </body>
 </html>
