@@ -75,10 +75,20 @@
     color: #000;
   }
 
-  #prevBtn {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-    margin-right: 10px;
+  #warningFlash {
+    display: none;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #ff4f4f;
+    animation: flash 1s infinite;
+  }
+
+  @keyframes flash {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
   }
 
   .result, .points-display {
@@ -100,10 +110,10 @@
       <button type="button" onclick="nextQuestion()" id="nextBtn">Next</button>
     </form>
 
-    <div class="points-display" id="points"></div>
     <div id="timerDisplay" style="font-size:20px;text-align:center;margin-top:10px;color:#ffd369;"></div>
 
-    <div class="result" id="result"></div>
+    <!-- 🔥 Flashing warning -->
+    <div id="warningFlash">⚠ Hurry up! Last 15 seconds!</div>
 
     <div class="points-display" id="points"></div>
 
@@ -112,56 +122,16 @@
 
 <script>
   const questions = [
-    {
-      q: "1. What technology does Octra primarily focus on?",
-      options: ["Fully Homomorphic Encryption (FHE)", "General AI Models"],
-      answer: 0
-    },
-    {
-      q: "2. What does FHE allow computations on?",
-      options: ["Encrypted Data", "Raw Unencrypted Data"],
-      answer: 0
-    },
-    {
-      q: "3. Octra aims to build a privacy-focused blockchain by enabling?",
-      options: ["Encrypted Computation", "Advanced NFT minting"],
-      answer: 0
-    },
-    {
-      q: "4. What database backend does Octra modify?",
-      options: ["IrminDB", "MongoDB"],
-      answer: 0
-    },
-    {
-      q: "5. What type of apps benefit most from Octra tech?",
-      options: ["Privacy-sensitive apps", "Normal Web Games"],
-      answer: 0
-    },
-    {
-      q: "6. Octra’s execution environment is meant to be?",
-      options: ["Isolated and Secure", "Open and Unrestricted"],
-      answer: 0
-    },
-    {
-      q: "7. Octra completed a pre-seed round of?",
-      options: ["$4M", "$40M"],
-      answer: 0
-    },
-    {
-      q: "8. Octra’s computation sandbox uses which format?",
-      options: ["WASM", "EXE"],
-      answer: 0
-    },
-    {
-      q: "9. Octra’s main mission is to bring?",
-      options: ["Universal Encrypted Compute", "A new DEX"],
-      answer: 0
-    },
-    {
-      q: "10. Octra is suitable for handling?",
-      options: ["Sensitive Data", "Memes"],
-      answer: 0
-    }
+    { q: "1. What technology does Octra primarily focus on?", options: ["Fully Homomorphic Encryption (FHE)", "General AI Models"], answer: 0 },
+    { q: "2. What does FHE allow computations on?", options: ["Encrypted Data", "Raw Unencrypted Data"], answer: 0 },
+    { q: "3. Octra aims to build a privacy-focused blockchain by enabling?", options: ["Encrypted Computation", "Advanced NFT minting"], answer: 0 },
+    { q: "4. What database backend does Octra modify?", options: ["IrminDB", "MongoDB"], answer: 0 },
+    { q: "5. What type of apps benefit most from Octra tech?", options: ["Privacy-sensitive apps", "Normal Web Games"], answer: 0 },
+    { q: "6. Octra’s execution environment is meant to be?", options: ["Isolated and Secure", "Open and Unrestricted"], answer: 0 },
+    { q: "7. Octra completed a pre-seed round of?", options: ["$4M", "$40M"], answer: 0 },
+    { q: "8. Octra’s computation sandbox uses which format?", options: ["WASM", "EXE"], answer: 0 },
+    { q: "9. Octra’s main mission is to bring?", options: ["Universal Encrypted Compute", "A new DEX"], answer: 0 },
+    { q: "10. Octra is suitable for handling?", options: ["Sensitive Data", "Memes"], answer: 0 }
   ];
 
   let current = 0;
@@ -175,6 +145,8 @@
       html += `<label><input type='radio' name='option' value='${i}'> ${opt}</label><br>`;
     });
     document.getElementById("questionBox").innerHTML = html;
+
+    startTimer(); // restart timer for new question
   }
 
   function nextQuestion() {
@@ -195,31 +167,40 @@
       document.getElementById("quizForm").style.display = "none";
       document.getElementById("result").innerText = `You scored ${score}/10`;
       document.getElementById("points").innerText = `Total Points: ${points}`;
+      document.getElementById("warningFlash").style.display = "none";
     }
   }
 
   let timer;
-let timeLeft = 15;
+  let timeLeft = 15;
 
-function startTimer() {
-  clearInterval(timer);
-  timeLeft = 15;
-  document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
-  timer = setInterval(() => {
-    timeLeft--;
+  function startTimer() {
+    clearInterval(timer);
+    timeLeft = 15;
+
+    document.getElementById("warningFlash").style.display = "none";
     document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
 
-    if (timeLeft === 0) {
-      clearInterval(timer);
-      nextQuestion();
-    }
-  }, 1000);
-}
+    timer = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
 
-window.onload = () => {
-  loadQuestion();
-  startTimer();
-};
+      // 🔥 Flash warning at 15 seconds
+      if (timeLeft === 15) {
+        document.getElementById("warningFlash").style.display = "block";
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        nextQuestion();
+      }
+
+    }, 1000);
+  }
+
+  window.onload = () => {
+    loadQuestion();
+  };
 </script>
 </body>
 </html>
