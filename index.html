@@ -19,6 +19,37 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
   text-align:center;
 }
+
+/* Logo styles with float, pulse, glow */
+#logo {
+  width: 120px;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse 2s infinite, glow 2s infinite alternate, float 3s ease-in-out infinite;
+}
+#logo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px #ffa751, 0 0 60px #ffa751, 0 0 90px #ffa751;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #ffa751, 0 0 20px #ffa751; }
+  50% { box-shadow: 0 0 20px #ffa751, 0 0 40px #ffa751; }
+  100% { box-shadow: 0 0 10px #ffa751, 0 0 20px #ffa751; }
+}
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
 h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
 #questionBox {
   background: rgba(255,255,255,0.07);
@@ -33,9 +64,10 @@ label {
   border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
 }
 label:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
-.correct { animation: glow 0.8s; border: 2px solid #0f0; }
+.correct { animation: glowCorrect 0.8s; border: 2px solid #0f0; }
 .wrong { animation: shake 0.5s; border: 2px solid #f00; }
-@keyframes glow {
+
+@keyframes glowCorrect {
   0% { box-shadow: 0 0 5px #0f0; }
   50% { box-shadow: 0 0 20px #0f0; }
   100% { box-shadow: 0 0 5px #0f0; }
@@ -47,6 +79,7 @@ label:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
   75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }
+
 .progress-container {
   width: 100%; background: rgba(255,255,255,0.1);
   border-radius: 20px; margin: 20px 0;
@@ -54,7 +87,10 @@ label:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
 .progress-bar {
   width: 0%; height: 20px; background: #ffa751;
   border-radius: 20px; transition: width 0.5s ease;
+  text-align: center; line-height: 20px; font-weight: bold;
+  color: #000;
 }
+
 .result, .points-display {
   margin-top: 20px; font-size: 22px; font-weight: 700; text-align: center;
 }
@@ -77,23 +113,26 @@ label:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
 </head>
 <body>
 <div class="container">
-<h1>Octra Knowledge Quiz</h1>
+  <!-- Octra Logo -->
+  <img src="octra-logo.png" alt="Octra Logo" id="logo">
 
-<div class="progress-container">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
+  <h1>Octra Knowledge Quiz</h1>
 
-<form id="quizForm">
-  <div class="question" id="questionBox"></div>
-</form>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar">0%</div>
+  </div>
 
-<div class="points-display" id="points"></div>
-<div class="result" id="result"></div>
+  <form id="quizForm">
+    <div class="question" id="questionBox"></div>
+  </form>
 
-<div id="certificate">
-  <h2>🎉 Congratulations! 🎉</h2>
-  <p id="certText"></p>
-</div>
+  <div class="points-display" id="points"></div>
+  <div class="result" id="result"></div>
+
+  <div id="certificate">
+    <h2>🎉 Congratulations! 🎉</h2>
+    <p id="certText"></p>
+  </div>
 </div>
 
 <script>
@@ -135,18 +174,19 @@ function loadQuestion() {
         else if(i===selectedIndex) o.parentElement.classList.add("wrong");
       });
       if(selectedIndex===newCorrectIndex){score++; points+=10;}
-      setTimeout(()=>{
-        current++;
-        if(current<questions.length) loadQuestion();
-        else showCertificate();
-      },1000);
+      setTimeout(()=>{ current++; if(current<questions.length) loadQuestion(); else showCertificate(); },1000);
     });
   });
 
   updateProgress();
 }
 
-function updateProgress(){document.getElementById("progressBar").style.width=((current)/questions.length*100)+"%";}
+function updateProgress(){
+  const percent = Math.round((current)/questions.length*100);
+  const bar = document.getElementById("progressBar");
+  bar.style.width = percent+"%";
+  bar.innerText = percent+"%";
+}
 
 function showCertificate() {
   document.getElementById("quizForm").style.display="none";
