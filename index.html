@@ -5,69 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Octra Quiz</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #fff;
-      padding: 20px;
-    }
-    .container {
-      max-width: 750px;
-      margin: auto;
-      background: rgba(255,255,255,0.15);
-      padding: 25px;
-      border-radius: 20px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 25px rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    h1 {
-      text-align: center;
-      color: #ffd369;
-      text-shadow: 0 0 10px rgba(255,211,105,0.8);
-    }
-    .question {
-      margin-bottom: 25px;
-      font-size: 18px;
-      background: rgba(0,0,0,0.3);
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    input[type="radio"] {
-      transform: scale(1.2);
-      margin-right: 8px;
-    }
-    button {
-      padding: 12px 25px;
-      background: linear-gradient(45deg, #ff6a00, #ee0979);
-      border: none;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 20px;
-      font-size: 18px;
-      box-shadow: 0 0 10px rgba(238,9,121,0.7);
-    }
-    button:hover {
-      background: linear-gradient(45deg, #ff8c42, #ff2e93);
-    }
-    .result {
-      margin-top: 25px;
-      font-size: 22px;
-      text-align: center;
-      font-weight: bold;
-      color: #00ffab;
-      text-shadow: 0 0 10px #00ffab;
-    }
-    .points-display {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 20px;
-      color: #9dff00;
-      text-shadow: 0 0 10px #9dff00;
-    }
-  </style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
+    margin: 0;
+    padding: 40px;
+    color: #fff;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: auto;
+    background: rgba(255,255,255,0.05);
+    padding: 40px;
+    border-radius: 25px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    opacity: 0.7;
+    margin-bottom: 30px;
+  }
+
+  #questionBox {
+    background: rgba(255,255,255,0.07);
+    padding: 25px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    background: rgba(255,255,255,0.08);
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 12px;
+    transition: 0.2s;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+  }
+
+  label:hover {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.02);
+  }
+
+  button {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  #nextBtn {
+    background: linear-gradient(45deg, #ffe259, #ffa751);
+    color: #000;
+  }
+
+  #prevBtn {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    margin-right: 10px;
+  }
+
+  .result, .points-display {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
   <div class="container">
@@ -81,6 +101,8 @@
     </form>
 
     <div class="points-display" id="points"></div>
+    <div id="timerDisplay" style="font-size:20px;text-align:center;margin-top:10px;color:#ffd369;"></div>
+
     <div class="result" id="result"></div>
 
     <div class="points-display" id="points"></div>
@@ -176,7 +198,28 @@
     }
   }
 
-  window.onload = loadQuestion;
+  let timer;
+let timeLeft = 15;
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 15;
+  document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timerDisplay").innerText = `Time: ${timeLeft}s`;
+
+    if (timeLeft === 0) {
+      clearInterval(timer);
+      nextQuestion();
+    }
+  }, 1000);
+}
+
+window.onload = () => {
+  loadQuestion();
+  startTimer();
+};
 </script>
 </body>
 </html>
