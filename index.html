@@ -1,519 +1,154 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Octra Quiz - Test Your Knowledge</title>
-  <meta name="description" content="Octra Quiz — quick bites of trivia to test your knowledge." />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Octra Quiz</title>
   <style>
-   :root {
-  --bg1: #12001e;
-  --bg2: #001226;
-  --card: rgba(255, 255, 255, 0.08);
-  --glass: rgba(255, 255, 255, 0.12);
-  --blur: blur(22px);
-  --text: #ffffff;
-  --muted: #d7d2ff;
-
-  --a1: #ff00e6;
-  --a2: #00e5ff;
-  --a3: #ffbd00;
-  --a4: #9b00ff;
-  --a5: #00ffa6;
-}
-
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-
-body {
-  margin: 0;
-  color: var(--text);
-  background: radial-gradient(circle at top right, var(--bg1), var(--bg2));
-  padding: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  backdrop-filter: var(--blur);
-  animation: bgShift 18s infinite alternate ease;
-}
-
-@keyframes bgShift {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
-}
-
-/* 🔮 Glass Container */
-.container {
-  width: 100%;
-  max-width: 980px;
-
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  padding: 28px;
-
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow:
-    0 10px 60px rgba(0,0,0,0.5),
-    inset 0 0 40px rgba(255,255,255,0.05);
-}
-
-/* ✨ Floating Glow Orbs */
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  filter: blur(120px);
-  z-index: -1;
-  opacity: 0.5;
-}
-
-body::before {
-  background: var(--a1);
-  top: -80px;
-  left: -80px;
-}
-
-body::after {
-  background: var(--a2);
-  bottom: -100px;
-  right: -100px;
-}
-
-/* 🔥 Logo */
-.logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-
-  background: linear-gradient(135deg, var(--a1), var(--a2), var(--a3));
-  background-size: 200%;
-  animation: logoShift 5s infinite alternate;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  font-size: 22px;
-  color: black;
-
-  box-shadow: 0 0 40px rgba(255,255,255,0.4);
-}
-
-@keyframes logoShift {
-  0% { background-position: 0%; }
-  100% { background-position: 100%; }
-}
-
-/* 🔅 Quiz Layout */
-.quiz {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 22px;
-  margin-top: 20px;
-}
-
-/* 📦 Frosted Glass Cards */
-.card {
-  background: var(--glass);
-  border-radius: 18px;
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-
-  box-shadow:
-    0 0 20px rgba(255,255,255,0.08),
-    inset 0 0 30px rgba(255,255,255,0.04);
-}
-
-/* ❓ Question */
-.question {
-  font-size: 20px;
-  margin-bottom: 18px;
-  font-weight: 600;
-}
-
-/* 🟦 Options */
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.option {
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  cursor: pointer;
-  transition: 0.2s ease;
-  font-weight: 500;
-}
-
-.option:hover {
-  transform: translateY(-4px) scale(1.02);
-  background: linear-gradient(135deg, var(--a2), var(--a1));
-  color: #000;
-  border-color: white;
-  box-shadow: 0 4px 25px rgba(255,255,255,0.4);
-}
-
-.option[data-state="selected"] {
-  background: linear-gradient(135deg, var(--a1), var(--a2));
-  border-color: white;
-  color: black;
-  box-shadow: 0 0 16px var(--a2);
-}
-
-/* 🎛 Buttons */
-button {
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  color: white;
-
-  background: linear-gradient(135deg, var(--a3), var(--a2));
-  transition: 0.2s ease;
-  backdrop-filter: blur(12px);
-}
-
-button:hover {
-  transform: translateY(-3px) scale(1.04);
-}
-
-button.secondary {
-  background: rgba(255,255,255,0.1);
-  color: var(--muted);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-button.secondary:hover {
-  background: rgba(255,255,255,0.25);
-  color: white;
-}
-
-/* 📊 Stats */
-.stats .stat {
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 14px;
-
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow: inset 0 0 30px rgba(255,255,255,0.05);
-}
-
-.small {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-/* 📈 Neon Progress Bar */
-.progress {
-  height: 12px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress > i {
-  display: block;
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--a1), var(--a2), var(--a3), var(--a4));
-  animation: hue 4s infinite linear;
-}
-
-@keyframes hue {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
-
-/* 🧊 Result Modal */
-#resultModal {
-  display: none;
-  margin-top: 20px;
-  animation: fadeIn .35s ease;
-  backdrop-filter: var(--blur);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 📱 Mobile */
-@media (max-width: 880px) {
-  .quiz { grid-template-columns: 1fr; }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1c1c1c, #2a2f4f);
+      color: #fff;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      text-align: center;
+    }
+    .question {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4b7bec;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #3867d6;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <main class="container" role="main" aria-labelledby="app-title">
-    <header>
-      <div class="logo" aria-hidden="true">OQ</div>
-      <div>
-        <h1 id="app-title">Octra Quiz — Test Your Knowledge</h1>
-        <p class="lead">A small, fast quiz to sharpen your mind. Tap an answer and hit Next.</p>
+  <div class="container">
+    <h1>Octra Knowledge Quiz</h1>
+
+    <form id="quizForm">
+      <div class="question">
+        1. What technology does Octra primarily focus on?
+        <br />
+        <input type="radio" name="q1" value="FHE" /> Fully Homomorphic Encryption (FHE)<br />
+        <input type="radio" name="q1" value="AI" /> General AI Models<br />
       </div>
-    </header>
 
-    <section class="quiz" aria-live="polite">
-      <section class="card app-card" id="quiz-card">
-        <div id="question-wrap">
-          <div class="question" id="question">Loading…</div>
-          <div class="options" id="options" role="list"></div>
-        </div>
-
-        <div class="controls" aria-hidden="false">
-          <button class="secondary" id="prevBtn" type="button">← Prev</button>
-          <div style="flex:1"></div>
-          <button id="nextBtn" type="button">Next →</button>
-        </div>
-      </section>
-
-      <aside class="stats">
-        <div class="stat">
-          <div style="display:flex;justify-content:space-between">
-            <div class="small">Progress</div>
-            <div id="progressText" class="small">0 / 0</div>
-          </div>
-          <div class="progress" aria-hidden="true" style="margin-top:8px">
-            <i id="progressBar"></i>
-          </div>
-        </div>
-
-        <div class="stat">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div class="small">Score</div>
-              <div id="score" style="font-weight:700;font-size:18px">0</div>
-            </div>
-            <div class="small" id="timer">⏱ 00:00</div>
-          </div>
-        </div>
-
-        <div class="stat">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button id="restart" class="secondary" type="button">Restart Quiz</button>
-            <button id="randomize" class="secondary" type="button">Randomize Questions</button>
-          </div>
-        </div>
-      </aside>
-    </section>
-
-    <div id="resultModal" class="card" style="margin-top:18px; display:none">
-      <div class="result">
-        <h2 id="resultTitle">Your results</h2>
-        <p id="resultSummary" class="small">Nice try — keep going!</p>
-        <div style="margin-top:12px">
-          <button id="playAgain">Play again</button>
-        </div>
+      <div class="question">
+        2. What does FHE allow computations on?
+        <br />
+        <input type="radio" name="q2" value="Encrypted" /> Encrypted Data<br />
+        <input type="radio" name="q2" value="Raw" /> Raw Unencrypted Data<br />
       </div>
-    </div>
 
-    <footer>
-      Built with ❤️ — Octra Quiz • <span id="version">v1.0</span>
-    </footer>
-  </main>
+      <div class="question">
+        3. Octra aims to build a privacy-focused blockchain by enabling?
+        <br />
+        <input type="radio" name="q3" value="EncryptedCompute" /> Encrypted Computation<br />
+        <input type="radio" name="q3" value="NFTs" /> Advanced NFT minting<br />
+      </div>
 
-  <script>
-    // Small, self-contained quiz engine
-    (function(){
-      const sampleQuestions = [
-        { id:1, q:"Which planet is known as the Red Planet?", a:["Earth","Mars","Venus","Jupiter"], correct:1 },
-        { id:2, q:"What is the capital of Japan?", a:["Seoul","Beijing","Tokyo","Bangkok"], correct:2 },
-        { id:3, q:"Who wrote '1984'?", a:["Aldous Huxley","George Orwell","Ray Bradbury","Philip K. Dick"], correct:1 },
-        { id:4, q:"What is the chemical symbol for water?", a:["WO","H2O","HO2","O2H"], correct:1 },
-        { id:5, q:"Which language runs in web browsers?", a:["Python","C++","JavaScript","Rust"], correct:2 }
-      ];
+      <div class="question">
+        4. What database backend does Octra modify for its encrypted storage?
+        <br />
+        <input type="radio" name="q4" value="IrminDB" /> IrminDB<br />
+        <input type="radio" name="q4" value="MongoDB" /> MongoDB<br />
+      </div>
 
-      // State
-      let questions = JSON.parse(JSON.stringify(sampleQuestions));
-      let index = 0;
-      let score = 0;
-      let selected = null;
-      let startTime = Date.now();
+      <div class="question">
+        5. What type of apps benefit most from Octra tech?
+        <br />
+        <input type="radio" name="q5" value="PrivacyApps" /> Privacy-sensitive apps<br />
+        <input type="radio" name="q5" value="Games" /> Normal Web Games<br />
+      </div>
 
-      // Elements
-      const questionEl = document.getElementById('question');
-      const optionsEl = document.getElementById('options');
-      const nextBtn = document.getElementById('nextBtn');
-      const prevBtn = document.getElementById('prevBtn');
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('progressText');
-      const scoreEl = document.getElementById('score');
-      const timerEl = document.getElementById('timer');
-      const resultModal = document.getElementById('resultModal');
-      const resultTitle = document.getElementById('resultTitle');
-      const resultSummary = document.getElementById('resultSummary');
-      const restartBtn = document.getElementById('restart');
-      const randomizeBtn = document.getElementById('randomize');
-      const playAgainBtn = document.getElementById('playAgain');
+      <div class="question">
+        6. Octra’s execution environment is meant to be?
+        <br />
+        <input type="radio" name="q6" value="Isolated" /> Isolated and Secure<br />
+        <input type="radio" name="q6" value="Open" /> Open and Unrestricted<br />
+      </div>
 
-      function render(){
-        const q = questions[index];
-        questionEl.textContent = q.q;
-        optionsEl.innerHTML = '';
-        q.a.forEach((opt, i)=>{
-          const div = document.createElement('div');
-          div.className = 'option';
-          div.setAttribute('role','button');
-          div.setAttribute('tabindex','0');
-          div.dataset.index = i;
-          div.textContent = opt;
-          if (q._chosen === i) div.dataset.state = "selected";
-          div.addEventListener('click', ()=> choose(i));
-          div.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') choose(i) });
-          optionsEl.appendChild(div);
-        });
+      <div class="question">
+        7. Octra completed a pre-seed round of?
+        <br />
+        <input type="radio" name="q7" value="4M" /> $4M<br />
+        <input type="radio" name="q7" value="40M" /> $40M<br />
+      </div>
 
-        progressText.textContent = (index+1) + ' / ' + questions.length;
-        const pct = Math.round(((index+1) / questions.length) * 100);
-        progressBar.style.width = pct + '%';
-        scoreEl.textContent = score;
-        prevBtn.disabled = index === 0;
-        nextBtn.textContent = index === questions.length - 1 ? 'Finish' : 'Next →';
+      <div class="question">
+        8. Octra’s computation sandbox uses which format?
+        <br />
+        <input type="radio" name="q8" value="WASM" /> WASM<br />
+        <input type="radio" name="q8" value="EXE" /> Executable App<br />
+      </div>
 
-        // hide result if coming back
-        resultModal.style.display = 'none';
-      }
+      <div class="question">
+        9. Octra’s main mission is to bring?
+        <br />
+        <input type="radio" name="q9" value="EncryptedCompute" /> Universal Encrypted Compute<br />
+        <input type="radio" name="q9" value="DEX" /> A new DEX<br />
+      </div>
 
-      function choose(i){
-        const q = questions[index];
-        q._chosen = i;
-        const optionNodes = optionsEl.querySelectorAll('.option');
-        optionNodes.forEach(n => n.dataset.state = ''); // reset
-        optionNodes[i].dataset.state = 'selected';
-        selected = i;
-      }
+      <div class="question">
+        10. Octra is suitable for handling?
+        <br />
+        <input type="radio" name="q10" value="SensitiveData" /> Sensitive Data<br />
+        <input type="radio" name="q10" value="Memes" /> Meme Storage<br />
+      </div>
 
-      function next(){
-        const q = questions[index];
-        // evaluate if selecting triggers immediate scoring, or wait until finish; we'll score incrementally
-        if (typeof q._scored === 'undefined'){
-          if (typeof q._chosen !== 'undefined'){
-            if (q._chosen === q.correct) {
-              score += 1;
-            }
-            q._scored = true;
-          }
-        }
+      <button type="button" onclick="checkQuiz()">Submit</button>
+    </form>
 
-        if (index < questions.length - 1){
-          index++;
-          render();
-        } else {
-          finish();
-        }
-      }
+    <div class="result" id="result"></div>
+  </div>
 
-      function prev(){
-        if (index > 0) {
-          index--;
-          render();
-        }
-      }
+<script>
+  function checkQuiz() {
+    const answers = {
+      q1: "FHE",
+      q2: "Encrypted",
+      q3: "EncryptedCompute",
+      q4: "IrminDB",
+      q5: "PrivacyApps",
+      q6: "Isolated",
+      q7: "4M",
+      q8: "WASM",
+      q9: "EncryptedCompute",
+      q10: "SensitiveData"
+    };
 
-      function finish(){
-        const total = questions.length;
-        const pct = Math.round((score/total)*100);
-        resultTitle.textContent = `Score: ${score} / ${total} (${pct}%)`;
-        if (pct >= 80) {
-          resultSummary.textContent = "Excellent — you're on fire!";
-        } else if (pct >= 50) {
-          resultSummary.textContent = "Nice work — keep practicing.";
-        } else {
-          resultSummary.textContent = "Not bad — try again to improve!";
-        }
-        resultModal.style.display = 'block';
-        // stop timer
-        clearInterval(timerTick);
-      }
+    let score = 0;
+    for (let q in answers) {
+      const selected = document.querySelector(`input[name="${q}"]:checked`);
+      if (selected && selected.value === answers[q]) score++;
+    }
 
-      function restart(){
-        questions = JSON.parse(JSON.stringify(sampleQuestions));
-        index = 0;
-        score = 0;
-        selected = null;
-        startTime = Date.now();
-        timerEl.textContent = "⏱ 00:00";
-        timerTick = setInterval(updateTimer, 1000);
-        render();
-      }
-
-      function randomize(){
-        // Fisher-Yates shuffle
-        for (let i = questions.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [questions[i], questions[j]] = [questions[j], questions[i]];
-        }
-        // reset progress and scoring metadata
-        questions.forEach(q => { delete q._chosen; delete q._scored; });
-        index = 0; score = 0; startTime = Date.now();
-        render();
-      }
-
-      nextBtn.addEventListener('click', next);
-      prevBtn.addEventListener('click', prev);
-      restartBtn.addEventListener('click', restart);
-      randomizeBtn.addEventListener('click', randomize);
-      playAgainBtn.addEventListener('click', restart);
-
-      // Timer
-      function pad(n){ return n.toString().padStart(2,'0') }
-      function updateTimer(){
-        const diff = Math.floor((Date.now() - startTime) / 1000);
-        const m = Math.floor(diff / 60);
-        const s = diff % 60;
-        timerEl.textContent = `⏱ ${pad(m)}:${pad(s)}`;
-      }
-      let timerTick = setInterval(updateTimer, 1000);
-
-      // initial render
-      render();
-
-      // for accessibility focus first option when question changes
-      const obs = new MutationObserver(()=> {
-        const firstOption = optionsEl.querySelector('.option');
-        if (firstOption) firstOption.focus();
-      });
-      obs.observe(optionsEl, {childList:true});
-
-      // expose for debug (optional)
-      window.__quiz = { restart, randomize, state: ()=> ({index,score,questions}) };
-    })();
-  </script>
+    document.getElementById("result").innerText = `You scored ${score}/10`;
+  }
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
