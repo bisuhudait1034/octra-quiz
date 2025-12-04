@@ -17,6 +17,7 @@ body {
   backdrop-filter: blur(20px);
   box-shadow: 0 0 40px rgba(0,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.1);
+  text-align:center;
 }
 h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
 #questionBox {
@@ -46,17 +47,6 @@ label:hover { background: rgba(255,255,255,0.15); transform: scale(1.02); }
   75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }
-button {
-  padding: 12px 30px; font-size: 16px; font-weight: 600;
-  border-radius: 12px; border: none; cursor: pointer; margin-top: 20px;
-}
-#nextBtn { background: linear-gradient(45deg, #ffe259, #ffa751); color: #000; }
-#warningFlash {
-  display: none; text-align: center; margin-top: 5px;
-  font-size: 22px; font-weight: bold; color: #ff4f4f;
-  animation: flash 1s infinite;
-}
-@keyframes flash { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
 .progress-container {
   width: 100%; background: rgba(255,255,255,0.1);
   border-radius: 20px; margin: 20px 0;
@@ -68,6 +58,21 @@ button {
 .result, .points-display {
   margin-top: 20px; font-size: 22px; font-weight: 700; text-align: center;
 }
+
+/* Certificate styles */
+#certificate {
+  display: none;
+  margin-top: 30px;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  padding: 40px;
+  color: #fff;
+  font-size: 22px;
+  text-align: center;
+  box-shadow: 0 0 30px #ffd700;
+}
+#certificate h2 { font-size: 28px; color: #ffd700; margin-bottom: 20px; }
 </style>
 </head>
 <body>
@@ -80,13 +85,15 @@ button {
 
 <form id="quizForm">
   <div class="question" id="questionBox"></div>
-  <button type="button" onclick="nextQuestion()" id="nextBtn">Next</button>
 </form>
 
-<div id="timerDisplay" style="font-size:20px;text-align:center;margin-top:10px;color:#ffd369;"></div>
-<div id="warningFlash">⚠ Hurry up! Last 5 seconds!</div>
 <div class="points-display" id="points"></div>
 <div class="result" id="result"></div>
+
+<div id="certificate">
+  <h2>🎉 Congratulations! 🎉</h2>
+  <p id="certText"></p>
+</div>
 </div>
 
 <script>
@@ -103,7 +110,7 @@ const questions = [
   { q: "10. Octra is suitable for handling?", options: ["Sensitive Data", "Memes", "GIFs", "Public Tweets"], answer: 0 }
 ];
 
-let current = 0, score = 0, points = 0, timer, timeLeft = 15;
+let current = 0, score = 0, points = 0;
 
 function loadQuestion() {
   const q = questions[current];
@@ -124,60 +131,30 @@ function loadQuestion() {
       const selectedIndex=parseInt(opt.value);
       document.querySelectorAll('input[name="option"]').forEach(o=>o.disabled=true);
       document.querySelectorAll('input[name="option"]').forEach((o,i)=>{
-        if(i===newCorrectIndex)o.parentElement.classList.add("correct");
-        else if(i===selectedIndex)o.parentElement.classList.add("wrong");
+        if(i===newCorrectIndex) o.parentElement.classList.add("correct");
+        else if(i===selectedIndex) o.parentElement.classList.add("wrong");
       });
       if(selectedIndex===newCorrectIndex){score++; points+=10;}
       setTimeout(()=>{
         current++;
         if(current<questions.length) loadQuestion();
-        else {
-          document.getElementById("quizForm").style.display="none";
-          document.getElementById("result").innerText=`You scored ${score}/10`;
-          document.getElementById("points").innerText=`Total Points: ${points}`;
-          document.getElementById("warningFlash").style.display="none";
-        }
+        else showCertificate();
       },1000);
     });
   });
 
   updateProgress();
-  startTimer();
-}
-
-function nextQuestion(){const selected=document.querySelector('input[name="option"]:checked');if(!selected)return alert("Please select an option!");}
-
-function startTimer(){
-  clearInterval(timer); timeLeft=15;
-  document.getElementById("warningFlash").style.display="none";
-  document.getElementById("timerDisplay").innerText=`Time: ${timeLeft}s`;
-  timer=setInterval(()=>{
-    timeLeft--; document.getElementById("timerDisplay").innerText=`Time: ${timeLeft}s`;
-    if(timeLeft===5) document.getElementById("warningFlash").style.display="block";
-    if(timeLeft<=0){
-      clearInterval(timer);
-      const selected=document.querySelector('input[name="option"]:checked');
-      if(!selected){
-        document.querySelectorAll('input[name="option"]').forEach((o,i)=>{
-          if(i===questions[current].answer) o.parentElement.classList.add("correct");
-          o.disabled=true;
-        });
-      }
-      setTimeout(()=>{
-        current++;
-        if(current<questions.length) loadQuestion();
-        else {
-          document.getElementById("quizForm").style.display="none";
-          document.getElementById("result").innerText=`You scored ${score}/10`;
-          document.getElementById("points").innerText=`Total Points: ${points}`;
-          document.getElementById("warningFlash").style.display="none";
-        }
-      },1000);
-    }
-  },1000);
 }
 
 function updateProgress(){document.getElementById("progressBar").style.width=((current)/questions.length*100)+"%";}
+
+function showCertificate() {
+  document.getElementById("quizForm").style.display="none";
+  document.getElementById("result").innerText=`You scored ${score}/10`;
+  document.getElementById("points").innerText=`Total Points: ${points}`;
+  document.getElementById("certificate").style.display="block";
+  document.getElementById("certText").innerText=`You earned ${points} points! Keep up the great work! 🎖️`;
+}
 
 window.onload=loadQuestion;
 </script>
